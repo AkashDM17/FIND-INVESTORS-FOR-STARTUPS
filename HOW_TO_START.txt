@@ -1,0 +1,44 @@
+HOW TO START THE FIND INVESTORS FOR STARTUPS APPLICATION
+
+There are several ways to start the application:
+
+METHOD 1: Manual Start (Recommended)
+-----------------------------------
+1. Open a terminal/command prompt
+2. Navigate to the project root directory
+3. Start the backend server:
+   cd server
+   npm start
+   
+4. Open another terminal/command prompt
+5. Navigate to the project root directory
+6. Start the frontend server:
+   npm run dev
+
+7. Access the application:
+   Frontend: http://localhost:5173 (or next available port)
+   Backend: http://localhost:5000
+
+METHOD 2: Using the PowerShell Script
+-------------------------------------
+1. Open PowerShell as Administrator
+2. Navigate to the project root directory
+3. Run:
+   powershell -ExecutionPolicy Bypass -File "start-all.ps1"
+
+METHOD 3: Using the Batch File
+------------------------------
+1. Double-click on START_PROJECT.bat
+   OR
+2. Open command prompt and run:
+   START_PROJECT.bat
+
+TROUBLESHOOTING:
+---------------
+If you get "Cannot connect to server" errors:
+1. Make sure MongoDB is running on your system
+2. Check that port 5000 is not being used by another application
+3. Kill any existing processes on port 5000:
+   Get-NetTCPConnection -LocalPort 5000 | Select-Object -ExpandProperty OwningProcess
+   Stop-Process -Id [PROCESS_ID] -Force
+4. Restart both servers
