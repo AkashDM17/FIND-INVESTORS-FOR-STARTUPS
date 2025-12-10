@@ -57,15 +57,19 @@ const SignatureStatusPage = ({ userType }) => {
     return agreementData.signatures.some(sig => sig.userType === 'investor');
   };
 
-  // Check if both parties have signed (simplified detection)
+  // Check if both parties have signed (improved detection)
   const hasBothPartiesSigned = () => {
     if (!agreementData || !agreementData.signatures) {
       return false;
     }
     
-    // Check both parties by user type
-    const startupSigned = agreementData.signatures.some(sig => sig.userType === 'startup');
-    const investorSigned = agreementData.signatures.some(sig => sig.userType === 'investor');
+    // Check both parties by user type with strict validation
+    const startupSigned = agreementData.signatures.some(sig => 
+      sig.userType === 'startup' && sig.signature && sig.signature.trim().length > 0
+    );
+    const investorSigned = agreementData.signatures.some(sig => 
+      sig.userType === 'investor' && sig.signature && sig.signature.trim().length > 0
+    );
     
     return startupSigned && investorSigned;
   };
@@ -163,7 +167,9 @@ const SignatureStatusPage = ({ userType }) => {
     doc.text('Signature:', 20, 70);
     
     // Add startup signature if available
-    const startupSignature = agreementData?.signatures?.find(sig => sig.userType === 'startup');
+    const startupSignature = agreementData?.signatures?.find(sig => 
+      sig.userType === 'startup' && sig.signature && sig.signature.trim().length > 0
+    );
     if (startupSignature && startupSignature.signature) {
       doc.addImage(startupSignature.signature, 'PNG', 20, 75, 60, 20);
     } else {
@@ -188,7 +194,9 @@ const SignatureStatusPage = ({ userType }) => {
     doc.text('Signature:', 20, 160);
     
     // Add investor signature if available
-    const investorSignature = agreementData?.signatures?.find(sig => sig.userType === 'investor');
+    const investorSignature = agreementData?.signatures?.find(sig => 
+      sig.userType === 'investor' && sig.signature && sig.signature.trim().length > 0
+    );
     if (investorSignature && investorSignature.signature) {
       doc.addImage(investorSignature.signature, 'PNG', 20, 165, 60, 20);
     } else {
@@ -356,13 +364,52 @@ const SignatureStatusPage = ({ userType }) => {
         border: '1px solid #ffeaa7',
         textAlign: 'center'
       }}>
-        <h2 style={{ color: '#856404' }}>⏳ Processing Agreement</h2>
+        <h2 style={{ color: '#856404' }}>📋 Agreement Status</h2>
         <p style={{ fontSize: '1.1rem' }}>
-          Your agreement is being processed. Please wait while we finalize the document.
+          Your investment agreement is being processed.
         </p>
+        <p style={{ fontSize: '1rem', marginTop: '15px', color: '#666' }}>
+          <strong>Startup has signed the agreement!</strong> Please review the terms and sign to complete the investment process.
+        </p>
+        <div style={{ 
+          marginTop: '15px', 
+          padding: '10px', 
+          background: '#d4edda', 
+          borderRadius: '6px',
+          border: '1px solid #c3e6cb'
+        }}>
+          <p style={{ margin: '0', color: '#155724' }}>
+            ✅ <strong>Next Steps:</strong> Review the agreement terms carefully, then click "Agree & Sign Agreement" to finalize the investment.
+          </p>
+        </div>
       </div>
 
       <div style={{ textAlign: 'center', marginTop: '30px' }}>
+        {/* Agree Button - Navigates to Agreement Signing Page */}
+        <button 
+          onClick={() => {
+            // Navigate to the agreement page
+            if (userType === 'startup') {
+              navigate('/agreement');
+            } else {
+              navigate('/agreement');
+            }
+          }}
+          style={{
+            padding: '12px 24px',
+            background: '#28a745',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            marginRight: '10px',
+            fontSize: '1rem',
+            fontWeight: 'bold'
+          }}
+        >
+          ✍️ Agree & Sign Agreement
+        </button>
+        
         <button 
           onClick={() => {
             if (userType === 'startup') {

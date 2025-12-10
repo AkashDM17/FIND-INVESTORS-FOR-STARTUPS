@@ -261,6 +261,17 @@ const AgreementPage = ({ agreementData: initialAgreementData, userType, agreemen
       alert('Please acknowledge the terms to continue.');
       return;
     }
+    
+    // Add confirmation dialog for the signature
+    const confirmation = window.confirm(
+      `Are you sure you want to sign this investment agreement as ${userType === 'startup' ? agreementData.startupName : agreementData.investorName}?` +
+      `\n\nBy signing, you agree to be legally bound by the terms of this agreement.` +
+      `\n\nClick "OK" to proceed or "Cancel" to review the terms again.`
+    );
+    
+    if (!confirmation) {
+      return; // User cancelled the signature
+    }
 
     // Check if user has already signed
     const currentUserName = userType === 'startup' ? agreementData.startupName : agreementData.investorName;
@@ -306,11 +317,16 @@ const AgreementPage = ({ agreementData: initialAgreementData, userType, agreemen
         localStorage.setItem('currentAgreementId', agreementId);
       }
       
-      // Redirect to dashboard
+      // Store agreement ID for status page
+      if (agreementId) {
+        localStorage.setItem('currentAgreementId', agreementId);
+      }
+      
+      // Redirect to signature status page
       if (userType === 'startup') {
-        window.location.href = '/startup/dashboard';
+        window.location.href = '/startup/signature-status';
       } else {
-        window.location.href = '/investor/dashboard';
+        window.location.href = '/investor/signature-status';
       }
       return;
     }
@@ -401,7 +417,8 @@ const AgreementPage = ({ agreementData: initialAgreementData, userType, agreemen
       
       // Check if agreement is now finalized (both parties signed)
       const isFinalized = updatedAgreement.status === 'finalized' || 
-                         (updatedAgreement.signatures && updatedAgreement.signatures.length >= 2);
+                         (updatedAgreement.signatures && updatedAgreement.signatures.length >= 2 && 
+                          updatedAgreement.signatures.filter(sig => sig.signature && sig.signature.trim().length > 0).length >= 2);
       
       console.log('Agreement finalization check:', {
         status: updatedAgreement.status,
@@ -449,7 +466,7 @@ const AgreementPage = ({ agreementData: initialAgreementData, userType, agreemen
         setAgreementData(updatedAgreement);
         
         // Show success notification message
-        alert('Agreement successfully submitted! Waiting for the other party to sign.');
+        alert('Agreement successfully submitted! A notification has been sent to the other party.');
         
         // Store pending agreement notification in localStorage for BOTH dashboards
         // The notification should appear on the OTHER party's dashboard
@@ -460,7 +477,7 @@ const AgreementPage = ({ agreementData: initialAgreementData, userType, agreemen
           
           const pendingAgreementNotification = {
             agreementId: agreementId,
-            message: `${userType === 'startup' ? 'Startup' : 'Investor'} has signed the agreement! Please sign to complete the process.`,
+            message: userType === 'startup' ? 'Startup has signed the agreement! Please review and accept the investment conditions to complete the process.' : 'Investor has accepted the investment conditions! The startup will be notified to finalize the agreement.',
             timestamp: new Date().toISOString(),
             userType: otherPartyType, // Notification for the OTHER party
             signedBy: userType,
@@ -510,8 +527,12 @@ const AgreementPage = ({ agreementData: initialAgreementData, userType, agreemen
     });
     
     // Check both parties by user type with strict validation
-    const startupSignature = agreementData.signatures.find(sig => sig.userType === 'startup' && sig.signature);
-    const investorSignature = agreementData.signatures.find(sig => sig.userType === 'investor' && sig.signature);
+    const startupSignature = agreementData.signatures.find(sig => 
+      sig.userType === 'startup' && sig.signature && sig.signature.trim().length > 0
+    );
+    const investorSignature = agreementData.signatures.find(sig => 
+      sig.userType === 'investor' && sig.signature && sig.signature.trim().length > 0
+    );
     
     console.log('Signature validation:', { 
       startupSignature: !!startupSignature, 

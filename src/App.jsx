@@ -39,7 +39,7 @@ function App() {
           <Route path="/investor/notifications" element={<Notifications />} />
           <Route path="/investor/signature-status" element={<SignatureStatusPageWrapper userType="investor" />} />
           <Route path="/investor/final-agreement" element={<FinalAgreementPageWrapper userType="investor" />} />
-          <Route path="/agreement" element={<AgreementPage />} />
+          <Route path="/agreement" element={<AgreementPageWrapper />} />
         </Routes>
       </div>
     </Router>
@@ -57,6 +57,31 @@ const FinalAgreementPageWrapper = ({ userType }) => {
 // Wrapper component to pass data to SignatureStatusPage
 const SignatureStatusPageWrapper = ({ userType }) => {
   return <SignatureStatusPage userType={userType} />;
+}
+
+// Wrapper component to pass data to AgreementPage
+const AgreementPageWrapper = () => {
+  // Get agreement data from localStorage
+  const agreementId = localStorage.getItem('currentAgreementId');
+  const userType = localStorage.getItem('userType') || 
+    (window.location.pathname.includes('/startup/') ? 'startup' : 'investor');
+  
+  // Get agreement data if available
+  let agreementData = null;
+  const storedAgreement = localStorage.getItem('currentAgreementData');
+  if (storedAgreement) {
+    try {
+      agreementData = JSON.parse(storedAgreement);
+    } catch (e) {
+      console.error('Error parsing agreement data:', e);
+    }
+  }
+  
+  return <AgreementPage 
+    agreementData={agreementData} 
+    userType={userType} 
+    agreementId={agreementId} 
+  />;
 }
 
 export default App

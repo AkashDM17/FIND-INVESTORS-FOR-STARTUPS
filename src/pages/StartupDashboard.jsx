@@ -297,12 +297,15 @@ function StartupDashboard() {
           );
           
           // Create appropriate notification message
-          let message = 'Agreement successfully submitted! Waiting for the other party to sign.';
+          let message = '📋 Agreement initiated! A notification has been sent to the investor for review.';
           if (investorSigned && !startupSigned) {
-            message = `Investor has signed the agreement! Please sign to complete the process.`;
+            message = `✅ Investor has accepted the investment conditions! Please review and sign the agreement to finalize the deal.`;
           } else if (startupSigned && !investorSigned) {
-            message = 'Agreement successfully submitted! Waiting for the investor to sign.';
+            message = '📋 Agreement sent! A notification has been sent to the investor for their acceptance.';
           }
+          
+          // Store agreement data in localStorage for the agreement page
+          localStorage.setItem('currentAgreementData', JSON.stringify(pendingAgreement));
           
           const pendingNotification = {
             agreementId: pendingAgreement._id,
@@ -872,46 +875,103 @@ function StartupDashboard() {
           <div style={{
             marginTop: '20px',
             padding: '20px',
-            background: '#fff3cd',
-            border: '2px solid #ffc107',
+            background: pendingAgreementNotification.message.includes('signed') ? '#d4edda' : '#fff3cd',
+            border: `2px solid ${pendingAgreementNotification.message.includes('signed') ? '#c3e6cb' : '#ffc107'}`,
             borderRadius: '12px',
-            color: '#856404',
+            color: pendingAgreementNotification.message.includes('signed') ? '#155724' : '#856404',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            animation: 'fadeIn 0.3s ease-in-out'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '15px', flex: 1 }}>
-              <span style={{ fontSize: '2rem' }}>⏳</span>
+              <span style={{ fontSize: '2rem' }}>
+                {pendingAgreementNotification.message.includes('signed') ? '✅' : '⏳'}
+              </span>
               <div>
-                <h3 style={{ margin: '0 0 5px 0', color: '#856404', fontSize: '1.1rem' }}>
-                  Agreement Status
+                <h3 style={{ 
+                  margin: '0 0 5px 0', 
+                  color: pendingAgreementNotification.message.includes('signed') ? '#155724' : '#856404', 
+                  fontSize: '1.1rem' 
+                }}>
+                  Agreement Update
                 </h3>
                 <p style={{ margin: 0, fontSize: '1rem' }}>
                   {pendingAgreementNotification.message}
                 </p>
+                <p style={{ 
+                  margin: '5px 0 0 0', 
+                  fontSize: '0.85rem', 
+                  opacity: 0.8 
+                }}>
+                  {new Date(pendingAgreementNotification.timestamp).toLocaleString()}
+                </p>
               </div>
             </div>
-            <button
-              onClick={() => {
-                setPendingAgreementNotification(null);
-                localStorage.removeItem('pendingAgreementNotification');
-              }}
-              style={{
-                padding: '8px 15px',
-                background: '#ffc107',
-                color: '#856404',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontWeight: 'bold'
-              }}
-            >
-              ✕ Dismiss
-            </button>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              {/* Agree Button - Navigate to Agreement Page */}
+              {(pendingAgreementNotification.message.includes('signed') || pendingAgreementNotification.message.includes('accepted')) && (
+                <button
+                  onClick={() => {
+                    // Store the agreement ID in localStorage for the AgreementPage to access
+                    if (pendingAgreementNotification.agreementId) {
+                      localStorage.setItem('currentAgreementId', pendingAgreementNotification.agreementId);
+                    }
+                    // Navigate to the agreement page
+                    window.location.href = '/agreement';
+                  }}
+                  style={{
+                    padding: '8px 15px',
+                    background: '#007bff',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseOver={(e) => {
+                    e.target.style.opacity = '0.9';
+                    e.target.style.transform = 'scale(1.05)';
+                  }}
+                  onMouseOut={(e) => {
+                    e.target.style.opacity = '1';
+                    e.target.style.transform = 'scale(1)';
+                  }}
+                >
+                  Agree & Sign
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  setPendingAgreementNotification(null);
+                  localStorage.removeItem('pendingAgreementNotification');
+                }}
+                style={{
+                  padding: '8px 15px',
+                  background: pendingAgreementNotification.message.includes('signed') ? '#28a745' : '#ffc107',
+                  color: pendingAgreementNotification.message.includes('signed') ? 'white' : '#856404',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseOver={(e) => {
+                  e.target.style.opacity = '0.9';
+                  e.target.style.transform = 'scale(1.05)';
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.opacity = '1';
+                  e.target.style.transform = 'scale(1)';
+                }}
+              >
+                Dismiss
+              </button>
+            </div>
           </div>
         )}
-
         {/* Dashboard Cards - Flexbox Side-by-Side Layout */}
         <div style={{ 
           display: 'flex',

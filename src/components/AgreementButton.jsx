@@ -392,39 +392,68 @@ const AgreementButton = ({ userType, activeChat, onAgreementInitiated, messages,
           </button>
         </div>
       ) : agreementData && agreementData.signatures && agreementData.signatures.some(sig => sig.userType === userType && sig.signature) ? (
-        // Show waiting message when current user has signed but other party hasn't
+        // Show a neutral message when current user has signed but other party hasn't
         <div style={{ 
           marginBottom: '15px',
           padding: '10px 15px',
           borderRadius: '6px',
-          background: '#fff3cd',
-          color: '#856404',
-          border: '1px solid #ffeaa7',
+          background: '#d1ecf1',
+          color: '#0c5460',
+          border: '1px solid #bee5eb',
           textAlign: 'center'
         }}>
-          ⏳ Waiting for other party to sign...
+          Agreement sent to the other party for signature
         </div>
       ) : (
         <>
           {/* Step 1: Both Agree */}
           <div style={{ marginBottom: '15px' }}>
+            <div style={{ 
+              marginBottom: '10px', 
+              padding: '10px', 
+              background: '#e9ecef', 
+              borderRadius: '6px',
+              textAlign: 'center'
+            }}>
+              <h4 style={{ margin: '0 0 5px 0', color: '#667eea' }}>🤝 Agreement Process</h4>
+              <p style={{ margin: '0', fontSize: '0.9rem' }}>
+                Both parties must explicitly agree to the terms before proceeding
+              </p>
+            </div>
+            
             <button 
               onClick={handleBothAgree}
               disabled={bothAgreed}
               className="btn btn-secondary"
               style={{
-                padding: '10px 15px',
+                padding: '12px 15px',
                 borderRadius: '6px',
                 border: 'none',
-                background: bothAgreed ? '#28a745' : '#6c757d',
+                background: bothAgreed ? '#28a745' : '#667eea',
                 color: 'white',
                 cursor: bothAgreed ? 'not-allowed' : 'pointer',
                 width: '100%',
-                marginBottom: '10px'
+                marginBottom: '10px',
+                fontWeight: 'bold',
+                fontSize: '1rem'
               }}
             >
-              {bothAgreed ? '✅ Both Parties Agreed' : 'Accept and Sign Agreement'}
+              {bothAgreed ? '✅ Both Parties Agreed to Terms' : '👍 I Agree to the Investment Terms'}
             </button>
+            
+            {bothAgreed && (
+              <div style={{ 
+                padding: '10px', 
+                background: '#d4edda', 
+                borderRadius: '6px',
+                textAlign: 'center',
+                marginBottom: '10px'
+              }}>
+                <p style={{ margin: '0', color: '#155724' }}>
+                  ✅ Both parties have agreed to the investment terms. You can now proceed to create the formal agreement.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Step 2: Create Agreement Button (shown automatically after both agree) */}
@@ -434,17 +463,19 @@ const AgreementButton = ({ userType, activeChat, onAgreementInitiated, messages,
                 onClick={handleCreateAgreement}
                 className="btn btn-primary"
                 style={{
-                  padding: '10px 15px',
+                  padding: '12px 15px',
                   borderRadius: '6px',
                   border: 'none',
-                  background: '#667eea',
+                  background: '#28a745',
                   color: 'white',
                   cursor: 'pointer',
                   width: '100%',
-                  marginBottom: '10px'
+                  marginBottom: '10px',
+                  fontWeight: 'bold',
+                  fontSize: '1rem'
                 }}
               >
-                Create Investment Agreement
+                📝 Create Formal Investment Agreement
               </button>
             </div>
           )}
